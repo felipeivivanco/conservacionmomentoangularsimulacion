@@ -1,0 +1,21 @@
+{
+  "name": "angular-momentum-engine",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "crosscheck": "python3 oracle/make_golden.py && node --test tests/oracle_crosscheck.test.js",
+    "reference-python": "python3 tests.py",
+    "test:integration": "node --test test/integration/*.test.js",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "0.186.0"
+  },
+  "devDependencies": {
+    "vite": "6.3.5"
+  }
+}
