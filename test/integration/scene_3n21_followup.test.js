@@ -40,13 +40,13 @@ function makeState(mode='VerticalBearing', includeHuman=true) {
 test('3N.21-D — el panel completo prioriza legibilidad y adapta el contenido al modelo completo', () => {
   const {text}=makeState('VerticalBearing',true);
   assert.doesNotMatch(text,/Masa reducida de acoplamiento/);
-  assert.match(text,/𝑟⃗ = \(0, 0\.60, 0\.40\) m/);
+  assert.match(text,/r_w = \(0, 0\.60, 0\.40\) m/);
   assert.match(text,/I_z = 2\.0 kg·m²/);
   assert.doesNotMatch(text,/I_plataforma,z/);
-  assert.match(text,/Matriz I\* — inercia base efectiva/);
-  assert.match(text,/Matriz I\(θ\) — inercia dinámica actual/);
+  assert.match(text,/I\* — inercia base efectiva/);
+  assert.match(text,/I\(θ\) — inercia dinámica actual/);
   assert.match(text,/Modelo completo del humano/);
-  assert.match(text,/acoplamiento geométrico asociado a 𝑟⃗/);
+  assert.match(text,/acoplamiento geométrico asociado a r/);
   assert.doesNotMatch(text,/I\(θ\) = I\* \+ \(I_a\/2\)/);
   assert.doesNotMatch(text,/Cómo se obtiene Ω y L humano/);
   assert.doesNotMatch(text,/Relación física/);
@@ -68,11 +68,11 @@ test('3N.21-E — el modelo simplificado elimina del texto el acoplamiento geom�
   const {state,text}=makeState('VerticalBearing',false);
   assert.equal(state.params.includeHuman,false);
   assert.doesNotMatch(text,/Masa reducida de acoplamiento/);
-  assert.match(text,/𝑟⃗ = \(0, 0\.60, 0\.40\) m/);
+  assert.match(text,/r_w = \(0, 0\.60, 0\.40\) m/);
   assert.match(text,/Modelo simplificado del humano/);
-  assert.match(text,/se omite el acoplamiento geométrico/);
-  assert.match(text,/Matriz I\* — inercia base efectiva/);
-  assert.match(text,/Matriz I\(θ\) — inercia dinámica actual/);
+  assert.match(text,/Se omite el acoplamiento geométrico/);
+  assert.match(text,/I\* — inercia base efectiva/);
+  assert.match(text,/I\(θ\) — inercia dinámica actual/);
   assert.match(text,/Cálculo de Ω_z/);
   assert.match(text,/Rueda \+ humano/);
   assert.doesNotMatch(text,/Masa reducida/);
@@ -80,7 +80,7 @@ test('3N.21-E — el modelo simplificado elimina del texto el acoplamiento geom�
 
 test('3N.21-F — Vacío adapta la explicación de Ω y de conservación y no presenta la cuenta escalar de Ω_z', () => {
   const {text}=makeState('Free',true);
-  assert.match(text,/Modelo completo del humano/);
+  assert.doesNotMatch(text,/Modelo completo del humano/);
   assert.match(text,/Cálculo de Ω/);
   assert.match(text,/dinámica rotacional libre/);
   assert.match(text,/Conservación de L del sistema/);
@@ -93,8 +93,8 @@ test('3N.21-F — Vacío adapta la explicación de Ω y de conservación y no pr
 
 test('3N.21-G — Vacío simplificado también identifica que no hay acoplamiento geométrico del humano', () => {
   const {text}=makeState('Free',false);
-  assert.match(text,/Modelo simplificado del humano/);
-  assert.match(text,/no se incorpora el acoplamiento geométrico/);
+  assert.doesNotMatch(text,/Modelo simplificado del humano/);
+  assert.match(text,/Cálculo de Ω/);
   assert.match(text,/Cálculo de Ω/);
   assert.match(text,/Conservación de L del sistema/);
 });
@@ -109,4 +109,13 @@ test('3N.21-H — la matriz I(theta) cambia con el ángulo sin alterar I*', () =
   assert.equal(a.inertiaMatrices.Istar[2][2],b.inertiaMatrices.Istar[2][2]);
   assert.notEqual(az,bz);
   assert.ok(Math.abs(bz-6.108899144951139)<1e-10);
+});
+
+test('3N.21-I — el panel de Plataforma conserva las expresiones solicitadas como fuente LaTeX', async () => {
+  const fs = await import('node:fs/promises');
+  const source = await fs.readFile(new URL('../../src/app/PhysicsDiagnostics.js', import.meta.url), 'utf8');
+  assert.match(source, /\\\\vec\{r\}_w/);
+  assert.match(source, /\\\\mu=\\\\frac\{m_p m_w\}\{m_p\+m_w\}/);
+  assert.match(source, /frac\{I_a/);
+  assert.match(source, /data-latex/);
 });

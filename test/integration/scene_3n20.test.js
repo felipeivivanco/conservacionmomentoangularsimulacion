@@ -188,3 +188,12 @@ test('3N.20-UI — switch Considerar cuerpo humano queda debajo de Momento de in
   assert.equal(controls.getState().includeHuman, false);
   controls.dispose();
 });
+
+test('3N.20-V-axes-contrast — las etiquetas de ejes usan blanco crema en Vacío', async () => {
+  const fs = await import('node:fs/promises');
+  const source = await fs.readFile(new URL('../../src/render/AxesOverlay.js', import.meta.url), 'utf8');
+  assert.match(source, /contrast = false/);
+  assert.match(source, /#fffaf0/);
+  const scene = await fs.readFile(new URL('../../src/render/Scene3D.js', import.meta.url), 'utf8');
+  assert.match(scene, /new AxesOverlay\(\{ three: THREE, document: options\.document \?\? globalThis\.document, contrast: spaceBackground \}\)/);
+});

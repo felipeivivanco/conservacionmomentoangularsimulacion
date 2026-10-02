@@ -25,7 +25,7 @@ test('3N.2-D1 — la ficha derecha muestra parámetros y diagnósticos L del est
   assert.ok(Math.abs(shown.LWheelMagnitude - Math.hypot(...state.L_wheel_world)) < 1e-12);
   assert.ok(Math.abs(shown.LBodyMagnitude - Math.hypot(...state.L_body_world)) < 1e-12);
   const text = diagnostics.parameters.children.map(x => x.children?.map(child => child.textContent).join(' ') ?? x.textContent).join(' ');
-  assert.match(text,/Velocidad angular/); assert.match(text,/I =/); assert.match(text,/L — rueda/); assert.match(text,/L — humano/);
+  assert.match(text,/Velocidad angular/); assert.match(text,/I_a =/); assert.match(text,/L — rueda/); assert.match(text,/L — humano/);
   assert.match(text,/x:/); assert.match(text,/y:/); assert.match(text,/z:/);
   assert.doesNotMatch(text,/\d{5,}/);
   assert.doesNotMatch(text,/L_total|Omega_w|n_w|omega_spin/);
@@ -39,7 +39,7 @@ test('3N.2-D2 — ω, I y L de la ficha salen directamente del snapshot físico'
   assert.equal(shown.omegaWheel,63); assert.equal(shown.Ia,state.params.Ia);
   assert.deepEqual(shown.LWheel,state.L_wheel_world); assert.deepEqual(shown.LBody,state.L_body_world);
   const text = diagnostics.parameters.children.map(x => x.children?.map(child => child.textContent).join(' ') ?? x.textContent).join(' ');
-  assert.match(text,/63\.00 rad\/s/); assert.match(text,new RegExp(`I = ${state.params.Ia.toFixed(4)}`));
+  assert.match(text,/63\.00 rad\/s/); assert.match(text,new RegExp(`I_a = ${state.params.Ia.toFixed(4)}`));
   assert.match(text,new RegExp(`x: ${state.L_wheel_world[0].toFixed(4)}`));
 });
 
@@ -66,12 +66,10 @@ test('3N.21-A — el panel de información muestra inercia humana, masa y matric
   const text = diagnostics.inertiaInfo.children.map(x => x.children?.map(child => child.textContent).join(' ') ?? x.textContent).join(' ');
   const headings = diagnostics.inertiaInfo.children.filter(x => x.className === 'ui-inertia-matrix-title').map(x => x.textContent).join(' ');
   assert.doesNotMatch(text,/Momento de inercia del humano/);
-  assert.match(text,/Iₓ = 12\.5 kg·m²/);
-  assert.match(text,/Iᵧ = 13\.5 kg·m²/);
-  assert.match(text,/I𝓏 = 1\.6 kg·m²/);
+  assert.match(text,/I_x = 12\.5\s+I_y = 13\.5\s+I_z = 1\.6 kg·m²/);
   assert.match(text,/Masa del humano/);
-  assert.match(headings,/Matriz I\* — inercia base efectiva/);
-  assert.match(headings,/Matriz I\(θ\) — inercia dinámica actual/);
+  assert.match(headings,/I\* — inercia base efectiva/);
+  assert.match(headings,/I\(θ\) — inercia dinámica actual/);
 });
 
 test('3N.21-B — el signo de la velocidad angular humana se refleja en Parámetros', () => {

@@ -480,3 +480,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(47,134,234,.
   padding:7px 9px;
   font-size:11px;
 }
+
+.ui-math { font-family: Georgia, "Times New Roman", serif; font-size:1.02em; white-space:nowrap; }
+.ui-vector-symbol { position:relative; display:inline-block; line-height:1; padding-top:0.08em; }
+.ui-vector-letter { display:inline-block; }
+.ui-vector-arrow { position:absolute; left:50%; top:-0.38em; transform:translateX(-50%); font-family:Arial, sans-serif; font-size:0.78em; line-height:1; }
+.ui-math-block strong { color:var(--ui-text); }
+.ui-formula-display { margin:8px 0; padding:7px 8px; border-left:3px solid var(--ui-primary); background:rgba(239,248,255,.48); overflow-x:auto; font-family:Georgia, "Times New Roman", serif; font-size:13px; line-height:1.65; }
+.frac { display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; line-height:1.05; margin:0 .16em; }
+.frac > span:first-child { border-bottom:1px solid currentColor; padding:0 .16em 2px; }
+.frac > span:last-child { padding-top:2px; }
+#app[data-ui-theme="dark"] .ui-formula-display { background:rgba(36,49,63,.82); }

@@ -1,12 +1,13 @@
 /** Presentation-only global coordinate axes overlay. */
 class AxesOverlay {
-  constructor({ three, document: doc = globalThis.document, length = 2.25 } = {}) {
+  constructor({ three, document: doc = globalThis.document, length = 2.25, contrast = false } = {}) {
     if (!three || typeof three !== 'object') throw new TypeError('three is required');
     const { Group, ArrowHelper, Vector3 } = three;
     if ([Group, ArrowHelper, Vector3].some(type => typeof type !== 'function')) throw new TypeError('three lacks axes constructors');
     this.three = three;
     this.document = doc;
     this.length = length;
+    this.contrast = Boolean(contrast);
     this.object = new Group();
     this.visible = false;
     this._items = [];
@@ -55,7 +56,7 @@ class AxesOverlay {
     const ctx = canvas.getContext?.('2d');
     if (!ctx) return;
     ctx.setTransform?.(resolutionScale, 0, 0, resolutionScale, 0, 0);
-    ctx.font = 'bold 24px sans-serif'; ctx.fillStyle = '#111'; ctx.fillText(text, 6, 30);
+    ctx.font = 'bold 24px sans-serif'; ctx.fillStyle = this.contrast ? '#fffaf0' : '#111'; ctx.fillText(text, 6, 30);
     const texture = new this.three.CanvasTexture(canvas);
     if ('minFilter' in texture && this.three.LinearFilter !== undefined) texture.minFilter = this.three.LinearFilter;
     if ('magFilter' in texture && this.three.LinearFilter !== undefined) texture.magFilter = this.three.LinearFilter;
