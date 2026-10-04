@@ -300,7 +300,20 @@ class SimulationControls {
     const slider = this.document.createElement('input');
     slider.type = 'range'; slider.min = String(min); slider.max = String(max); slider.step = String(step); slider.value = String(value);
     slider.id = id; slider.className = 'ui-range'; slider.setAttribute?.('aria-label', aria);
+    this._syncRangeVisual(slider);
+    slider.addEventListener('input', () => this._syncRangeVisual(slider));
     return slider;
+  }
+
+  _syncRangeVisual(slider) {
+    if (!slider) return;
+    const min = Number(slider.min);
+    const max = Number(slider.max);
+    const value = Number(slider.value);
+    const progress = Number.isFinite(min) && Number.isFinite(max) && max > min && Number.isFinite(value)
+      ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100))
+      : 0;
+    slider.style?.setProperty?.('--ui-range-progress', `${progress}%`);
   }
 
   _valueNode() {
@@ -379,15 +392,19 @@ class SimulationControls {
     this._lastState = structuredClone(physicsState);
     const targetDegrees = SimulationControls.radiansToDegrees(physicsState.theta_target);
     this.thetaSlider.value = String(targetDegrees);
+    this._syncRangeVisual(this.thetaSlider);
     const effectiveSpin = Number(physicsState.params.s0);
     const magnitude = Math.abs(effectiveSpin);
     if (Math.abs(effectiveSpin) > 1e-15) this._directionSign = effectiveSpin < 0 ? -1 : 1;
     this.spinSlider.value = String(magnitude);
+    this._syncRangeVisual(this.spinSlider);
     this._configuredSpin = magnitude;
     this.directionSwitch.checked = this._directionSign < 0;
     this._updateDirectionPresentation();
     this.diameterSlider.value = String(physicsState.params.D);
+    this._syncRangeVisual(this.diameterSlider);
     this.massSlider.value = String(physicsState.params.m_w);
+    this._syncRangeVisual(this.massSlider);
     this.humanModelSwitch.checked = physicsState.params.includeHuman === false;
     this._updateHumanModelPresentation();
     // A live browser render can arrive on the very next animation frame after

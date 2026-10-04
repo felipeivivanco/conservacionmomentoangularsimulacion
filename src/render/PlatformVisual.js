@@ -12,7 +12,7 @@ class PlatformVisual {
     const radius = options.radius ?? 0.36;
     const height = options.height ?? 0.16;
     const geometry = new CylinderGeometry(radius, radius, height, 48);
-    const topColor = options.color ?? 0x9a9a9a;
+    const topColor = options.color ?? 0xc2c2c2;
     const sideColor = options.sideColor ?? 0x858585;
     const topMaterial = new MeshBasicMaterial({ color: topColor });
     const sideMaterial = new MeshBasicMaterial({ color: sideColor });

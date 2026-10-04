@@ -155,7 +155,7 @@ test('3N.20-V-space — Vacío usa blanco en el overlay auxiliar sin alterar los
   assert.equal(overlay.arrows.get('wheelOmega').color,0xffffff);
   assert.equal(overlay.arrows.get('wheelLX').color,0xe53935);
   assert.equal(overlay.arrows.get('wheelLY').color,0x43a047);
-  assert.equal(overlay.arrows.get('wheelLZ').color,0x1e88e5);
+  assert.equal(overlay.arrows.get('wheelLZ').color,0x0000ff);
 });
 
 class FakeElementUI {

@@ -14,6 +14,7 @@ class PhysicsVectorsOverlay {
     this.object = new Group();
     this.arrows = new Map();
     this.labels = new Map();
+    this._labelTexts = new Map();
     this.visible = false;
     for (const [key, label] of [
       ['wheelOmega', 'ω — rueda'],
@@ -29,7 +30,7 @@ class PhysicsVectorsOverlay {
   }
 
   _axisColor(axis) {
-    return { x: 0xe53935, y: 0x43a047, z: 0x1e88e5 }[axis];
+    return { x: 0xe53935, y: 0x00ff00, z: 0x0000ff }[axis];
   }
 
   _addArrow(key, label, color) {
@@ -146,7 +147,7 @@ class PhysicsVectorsOverlay {
     arrow.setDirection(dir);
     arrow.setLength(length, Math.min(0.18,length*0.24), Math.min(0.10,length*0.14));
     if (label) {
-      const tipOffset = Math.min(0.035, Math.max(0.008, length * 0.025));
+      const tipOffset = Math.min(0.035, Math.max(0.002, length * 0.004));
       label.position.set(origin.x+dir.x*(length+tipOffset), origin.y+dir.y*(length+tipOffset), origin.z+dir.z*(length+tipOffset));
     }
   }
@@ -186,6 +187,7 @@ class PhysicsVectorsOverlay {
   }
 
   _setLabelText(key, text) {
+    this._labelTexts.set(key, text);
     const label = this.labels.get(key);
     if (!label || !this.document || typeof this.document.createElement !== 'function') return;
     const canvas = label.material?.map?.image;
@@ -197,7 +199,7 @@ class PhysicsVectorsOverlay {
     ctx.save();
     ctx.setTransform?.(resolutionScale,0,0,resolutionScale,0,0);
     ctx.font = 'bold 21px sans-serif';
-    ctx.fillStyle = this.contrast ? '#fff' : '#111';
+    ctx.fillStyle = this.contrast ? '#fffaf0' : '#111';
     ctx.textBaseline = 'alphabetic';
     ctx.fillText(text,5,32);
     ctx.restore();
@@ -213,18 +215,46 @@ class PhysicsVectorsOverlay {
     const ctx = canvas.getContext?.('2d'); if (!ctx) return;
     ctx.setTransform?.(resolutionScale, 0, 0, resolutionScale, 0, 0);
     ctx.font = 'bold 21px sans-serif';
-    ctx.fillStyle = this.contrast ? '#fff' : '#111';
+    ctx.fillStyle = this.contrast ? '#fffaf0' : '#111';
     ctx.textBaseline = 'alphabetic';
     ctx.fillText(text, 5, 32);
     const texture = new this.three.CanvasTexture(canvas);
     if ('minFilter' in texture && this.three.LinearFilter !== undefined) texture.minFilter = this.three.LinearFilter;
     if ('magFilter' in texture && this.three.LinearFilter !== undefined) texture.magFilter = this.three.LinearFilter;
     texture.needsUpdate = true;
-    const sprite = new this.three.Sprite(new this.three.SpriteMaterial({map:texture,transparent:true}));
+    const sprite = new this.three.Sprite(new this.three.SpriteMaterial({map:texture,transparent:true,depthWrite:false,alphaTest:0.01,toneMapped:false}));
     sprite.scale.set(1.15,0.20,1);
     sprite.visible=false;
     this.object.add(sprite);
     this.labels.set(key,sprite);
+  }
+
+  setContrast(contrast) {
+    this.contrast = Boolean(contrast);
+    // In dark Platform mode, the main physical-vector arrows (L and angular
+    // velocity) use the same cream contrast as their labels. Axis-component
+    // arrows remain their X/Y/Z axis colors.
+    const physicalVectorColor = this.contrast ? 0xfffaf0 : 0x222222;
+    for (const key of ['wheelOmega', 'wheelL', 'bodyOmega', 'bodyL']) {
+      const arrow = this.arrows.get(key);
+      if (arrow?.setColor) arrow.setColor(new this.three.Color(physicalVectorColor));
+    }
+    for (const [key, label] of this.labels.entries()) {
+      const canvas = label.material?.map?.image;
+      const ctx = canvas?.getContext?.('2d');
+      if (!ctx) continue;
+      const resolutionScale = 3;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.setTransform?.(resolutionScale,0,0,resolutionScale,0,0);
+      ctx.font = 'bold 21px sans-serif';
+      ctx.fillStyle = this.contrast ? '#fffaf0' : '#111';
+      ctx.textBaseline = 'alphabetic';
+      const text = this._labelTexts?.get(key) ?? '';
+      ctx.fillText(text,5,32);
+      ctx.restore();
+      if (label.material?.map) label.material.map.needsUpdate = true;
+    }
   }
 
   _rotateByQ(vector,q){

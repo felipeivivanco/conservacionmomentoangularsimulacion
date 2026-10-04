@@ -61,11 +61,29 @@ class AxesOverlay {
     if ('minFilter' in texture && this.three.LinearFilter !== undefined) texture.minFilter = this.three.LinearFilter;
     if ('magFilter' in texture && this.three.LinearFilter !== undefined) texture.magFilter = this.three.LinearFilter;
     texture.needsUpdate = true;
-    const sprite = new this.three.Sprite(new this.three.SpriteMaterial({map:texture, transparent:true}));
+    const sprite = new this.three.Sprite(new this.three.SpriteMaterial({map:texture, transparent:true, depthWrite:false, alphaTest:0.01, toneMapped:false}));
     sprite.position.set(position[0], position[1], position[2]);
     sprite.scale.set(0.65,0.25,1);
     this.object.add(sprite);
     this._labels.push({sprite, text, texture});
+  }
+
+  setContrast(contrast) {
+    this.contrast = Boolean(contrast);
+    for (const item of this._labels) {
+      const canvas = item.texture?.image;
+      const ctx = canvas?.getContext?.('2d');
+      if (!ctx) continue;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const resolutionScale = 4;
+      ctx.save();
+      ctx.setTransform?.(resolutionScale, 0, 0, resolutionScale, 0, 0);
+      ctx.font = 'bold 24px sans-serif';
+      ctx.fillStyle = this.contrast ? '#fffaf0' : '#111';
+      ctx.fillText(item.text, 6, 30);
+      ctx.restore();
+      item.texture.needsUpdate = true;
+    }
   }
 
   setVisible(visible) { this.visible = Boolean(visible); this.object.visible = this.visible; }

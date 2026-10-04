@@ -63,11 +63,30 @@ class SceneRuntime {
       width,
       height,
       antialias: true,
-      person: astronaut ? { astronaut: true, bodyOriginY: 0 } : { bodyOriginY: 0.90 },
+      person: astronaut
+        ? {
+            astronaut: true,
+            bodyOriginY: 0,
+            armColor: 0x62686e,
+            armShadeColor: 0x62686e,
+            legColor: 0x62686e,
+            legShadeColor: 0x62686e
+          }
+        : {
+            bodyOriginY: 0.90,
+            headColor: 0xa0a0a0,
+            headShadeColor: 0x888888,
+            handColor: 0xa6a6a6,
+            armColor: 0x733b3b,
+            armShadeColor: 0x733b3b,
+            legColor: 0x707070,
+            legShadeColor: 0x5e5e5e
+          },
       wheel: true,
       platform: !space,
       scenario,
       backgroundColor: space ? 0x000000 : 0xb8d9ed,
+      transparentBackground: !space,
       spaceBackground: space,
       starCount: 700,
       starSpread: 28
@@ -78,7 +97,14 @@ class SceneRuntime {
     this.canvas.className = 'scene-canvas';
     this.root.appendChild(this.canvas);
 
-    this.diagnostics = new PhysicsDiagnostics({ document, mount: this.root, mode });
+    // Diagnostics is created before Controls, exactly as in the original
+    // runtime boot order. Do not dereference this.controls here: Controls does
+    // not exist yet and doing so aborts application startup.
+    this.diagnostics = new PhysicsDiagnostics({
+      document,
+      mount: this.root,
+      mode
+    });
     this.speedControl = new SimulationSpeedControl({
       document,
       controller: this.controller,
@@ -132,6 +158,10 @@ class SceneRuntime {
         }
       }
     });
+    // Now that Controls exists, bind it as the fixed-height reference for the
+    // expanded Parameters content. This is UI-only and avoids any startup
+    // dependency cycle.
+    this.diagnostics.referencePanel = this.controls.root;
     this.bottomDock = document.createElement('div');
     this.bottomDock.className = 'ui-bottom-dock';
     this.bottomDock.setAttribute?.('aria-label', 'Recursos educativos');
@@ -218,6 +248,7 @@ class SceneRuntime {
     const stageHeight = Math.max(1, this.parent.clientHeight || height || 1);
     this.renderer.resize(stageWidth, stageHeight);
     this.cameraPresentation.resize(stageWidth, stageHeight);
+    this.diagnostics.syncHeightWithReference();
   }
 
   setOverlayVisible(name, visible) {
@@ -278,7 +309,7 @@ class DemoApplication {
     this._activeScene = 'platform';
     this._applySceneVisibility();
 
-    this._onResize = () => this.resize();
+    this._onResize = () => this._scheduleVisualRefresh();
     window.addEventListener('resize', this._onResize);
   }
 
@@ -343,6 +374,18 @@ class DemoApplication {
       const next = this.mount.dataset?.uiTheme === 'dark' ? 'light' : 'dark';
       if (this.mount.dataset) this.mount.dataset.uiTheme = next;
       renderThemeIcon(next);
+      for (const runtime of Object.values(this.scenes ?? {})) {
+        runtime.scene?.setOverlayLabelContrast?.(next === 'dark' || Boolean(runtime.scene?.spaceBackground));
+        if (runtime.scene?.spaceBackground === false) runtime.scene?.setGridDarkMode?.(next === 'dark');
+      }
+
+      // Theme changes alter the CSS layout (light uses a floating full-stage
+      // composition while dark keeps the existing panel arrangement). The
+      // WebGL canvas must be resized to the newly computed stage dimensions
+      // immediately, otherwise the old drawing buffer is stretched by CSS and
+      // the 3D simulation appears vertically flattened. This is presentation
+      // only: no camera target, physical state, or panel position is changed.
+      this._scheduleVisualRefresh();
     });
 
     const info = this.document.createElement('button');
@@ -397,6 +440,7 @@ class DemoApplication {
     if (this.disposed || !this.scenes[id]) return;
     this._activeScene = id;
     this._applySceneVisibility();
+    this._scheduleVisualRefresh();
   }
 
   _applySceneVisibility() {
@@ -415,6 +459,28 @@ class DemoApplication {
     const width = Math.max(1, this.sceneStage?.clientWidth || this.window.innerWidth || 1);
     const height = Math.max(1, this.sceneStage?.clientHeight || this.window.innerHeight || 1);
     for (const runtime of Object.values(this.scenes)) runtime.resize(width, height);
+  }
+
+  // CSS theme/scene changes can settle after the click handler has returned.
+  // Resize and redraw on the next browser frame so a WebGL canvas never stays
+  // blank/stretched until the next pointer interaction. This only refreshes
+  // presentation from the existing physical snapshot; it does not advance time.
+  _scheduleVisualRefresh() {
+    if (this.disposed || this._visualRefreshPending) return;
+    const refresh = () => {
+      this._visualRefreshPending = false;
+      if (this.disposed) return;
+      this.resize();
+      const runtime = this.scenes?.[this._activeScene];
+      if (!runtime || runtime.disposed) return;
+      runtime.loop.refreshCurrentState({ notifyPhysics: false });
+    };
+    if (typeof this.window.requestAnimationFrame === 'function') {
+      this._visualRefreshPending = true;
+      this.window.requestAnimationFrame(refresh);
+    } else {
+      refresh();
+    }
   }
 
   dispose() {

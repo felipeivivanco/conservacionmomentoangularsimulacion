@@ -131,7 +131,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(47,134,234,.
 .ui-overlay-option { display:flex !important; align-items:center; gap:9px; margin-top:7px !important; font-size:12.5px; font-weight:650 !important; color:#52718c; cursor:pointer; }
 .ui-overlay-option input { width:17px; height:17px; accent-color:var(--ui-primary); }
 
-.ui-action { min-height:42px; border:0; border-radius:13px; padding:10px 12px; color:white; font-weight:800; font-size:12px; cursor:pointer; box-shadow:0 7px 15px rgba(43,105,147,.14); transition:transform .15s ease, filter .15s ease; }
+.ui-action { min-height:42px; border:0; border-radius:13px; padding:10px 12px; color:white; font-weight:500; font-size:13.5px; cursor:pointer; box-shadow:0 7px 15px rgba(43,105,147,.14); transition:transform .15s ease, filter .15s ease; }
 .ui-action:hover { filter:brightness(1.03); transform:translateY(-1px); }
 .ui-action--start { background:var(--ui-green) !important; }
 .ui-action--reset { background:var(--ui-red) !important; }
@@ -245,6 +245,171 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(47,134,234,.
 .ui-education-heading { font-weight:800; color:var(--ui-text); }
 .ui-formula { margin-top:6px; font-family:Georgia,serif; font-style:italic; font-size:16px; color:var(--ui-text); white-space:pre-line; overflow-wrap:anywhere; }
 .ui-education-note { margin-top:5px; color:var(--ui-muted); }
+
+
+/* ================================================================
+   MODO CLARO — AJUSTES VISUALES SOLICITADOS
+   Estos overrides no se aplican al modo oscuro.
+   ================================================================ */
+
+#app[data-ui-theme="light"] {
+  --ui-primary: #58a16c;
+  --ui-primary-dark: #3f7d52;
+  --ui-hover: rgba(226, 241, 230, .90);
+  --ui-border: rgba(88, 161, 108, .16);
+  --ui-shadow: 0 16px 36px rgba(66, 112, 78, .13), 0 3px 10px rgba(66, 112, 78, .08);
+  --ui-secondary-text: #5d7464;
+  --ui-muted: #708277;
+  --ui-text: #274633;
+  --ui-bg: #eef7f0;
+  --ui-bg-2: #e1f0e4;
+}
+
+body:has(#app[data-ui-theme="light"]) {
+  background:
+    radial-gradient(circle at 52% 42%, rgba(255,255,255,.96) 0, rgba(241,249,243,.82) 38%, rgba(225,240,228,.72) 100%),
+    linear-gradient(145deg, #eef7f0 0%, #e1f0e4 100%);
+}
+
+/* Header flotante: ya no ocupa una fila propia ni deja una "franja"
+   del layout debajo. Se comporta como los paneles laterales. */
+#app[data-ui-theme="light"].ui-app {
+  display: block !important;
+  grid-template-rows: none !important;
+}
+
+#app[data-ui-theme="light"].ui-app > .ui-header {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  width: auto;
+  margin: 0;
+}
+
+#app[data-ui-theme="light"].ui-app > .ui-main {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+@media (min-width: 901px) {
+  #app[data-ui-theme="light"] .ui-controls {
+    top: 86px !important;
+    max-height: calc(100% - 96px) !important;
+  }
+  #app[data-ui-theme="light"] .ui-diagnostics {
+    top: 86px !important;
+    max-height: calc(100% - 96px) !important;
+  }
+  #app[data-ui-theme="light"] .ui-speed-control {
+    top: 86px !important;
+  }
+}
+
+/* Verde del selector de escenas: activo más intenso, inactivo más claro. */
+#app[data-ui-theme="light"] .ui-scene-tabs {
+  background: rgba(220, 238, 224, .94);
+  box-shadow: inset 0 1px 2px rgba(56, 103, 67, .08);
+}
+#app[data-ui-theme="light"] .ui-scene-tab {
+  color: #6f9879;
+}
+#app[data-ui-theme="light"] .ui-scene-tab.is-active {
+  color: #fff;
+  background: #58a16c;
+  box-shadow: 0 7px 16px rgba(88, 161, 108, .24);
+}
+#app[data-ui-theme="light"] .ui-scene-tab:not(.is-active):hover {
+  background: rgba(246, 252, 247, .92);
+  color: #3f7d52;
+}
+
+/* Tipografías e iconos que antes usaban el azul principal. */
+#app[data-ui-theme="light"] .ui-brand-icon {
+  background: rgba(232, 245, 235, .96);
+  box-shadow: inset 0 0 0 1px rgba(88, 161, 108, .10);
+}
+#app[data-ui-theme="light"] .ui-icon-button {
+  color: #527760;
+  border-color: rgba(88, 161, 108, .12);
+  box-shadow: 0 4px 12px rgba(66, 112, 78, .08);
+}
+#app[data-ui-theme="light"] .ui-icon-button:hover { background: #f7fbf8; }
+#app[data-ui-theme="light"] .ui-panel-title .ui-title-icon,
+#app[data-ui-theme="light"] .ui-diagnostic-icon {
+  background: #e4f2e7;
+  color: #58a16c;
+}
+#app[data-ui-theme="light"] .ui-control-label { color: #405f4b; }
+#app[data-ui-theme="light"] .ui-control-value { color: #4d7358; }
+#app[data-ui-theme="light"] .ui-card-title { color: #456c50; }
+#app[data-ui-theme="light"] .ui-card-title .ui-card-icon,
+#app[data-ui-theme="light"] .ui-diagnostic-info-toggle { color: #58a16c; }
+#app[data-ui-theme="light"] .ui-direction-state { color: #5f7867 !important; }
+#app[data-ui-theme="light"] .ui-diagnostic-label { color: #788b7d; }
+#app[data-ui-theme="light"] .ui-diagnostic-value { color: #456b50; }
+#app[data-ui-theme="light"] .ui-vector-title,
+#app[data-ui-theme="light"] .ui-vector-mag { color: #4d7358; }
+#app[data-ui-theme="light"] .ui-vector-row { color: #637b6b; }
+#app[data-ui-theme="light"] .ui-help {
+  border-color: rgba(88, 161, 108, .28) !important;
+  color: #58a16c !important;
+}
+#app[data-ui-theme="light"] .ui-bottom-dock button { color: #4d7358 !important; }
+#app[data-ui-theme="light"] .ui-bottom-toggle:hover,
+#app[data-ui-theme="light"] .ui-bottom-toggle.is-active {
+  color: #3f7d52 !important;
+}
+#app[data-ui-theme="light"] .ui-formula-display { border-left-color: #58a16c; }
+
+/* Sliders: thumb verde #58a16c y tramo recorrido #708d7b. */
+#app[data-ui-theme="light"] .ui-range {
+  accent-color: #58a16c;
+}
+#app[data-ui-theme="light"] .ui-range::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    #708d7b 0%,
+    #708d7b var(--ui-range-progress, 0%),
+    #cfe2f3 var(--ui-range-progress, 0%),
+    #cfe2f3 100%
+  );
+}
+#app[data-ui-theme="light"] .ui-range::-webkit-slider-thumb {
+  background: #58a16c;
+  box-shadow: 0 2px 7px rgba(88, 161, 108, .30);
+}
+#app[data-ui-theme="light"] .ui-range::-moz-range-track { background: #cfe2f3; }
+#app[data-ui-theme="light"] .ui-range::-moz-range-progress {
+  height: 5px;
+  border-radius: 999px;
+  background: #708d7b;
+}
+#app[data-ui-theme="light"] .ui-range::-moz-range-thumb {
+  background: #58a16c;
+  box-shadow: 0 2px 7px rgba(88, 161, 108, .30);
+}
+
+/* Titulares de los tres menús inferiores: un poco más grandes. */
+#app[data-ui-theme="light"] .ui-bottom-toggle {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* Plataforma: fondo de la simulación como radial suave. El canvas es
+   transparente sólo en esta escena, por lo que el gradiente queda detrás
+   sin afectar la geometría, cámara ni física. */
+#app[data-ui-theme="light"] .scene-runtime[data-scene-runtime="platform"] {
+  background: radial-gradient(
+    circle at 50% 50%,
+    #3a86ba 0%,
+    #3479aa 38%,
+    #28658f 68%,
+    #184966 100%
+  );
+}
 
 #app[data-ui-theme="dark"] {
   background:linear-gradient(145deg,#101923 0%,#172330 100%);

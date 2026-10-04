@@ -4,7 +4,7 @@
  * The panel uses the world frame, matching the physical vector overlay.
  */
 class PhysicsDiagnostics {
-  constructor({ document, mount, mode = 'VerticalBearing' } = {}) {
+  constructor({ document, mount, mode = 'VerticalBearing', referencePanel = null } = {}) {
     if (!document || typeof document.createElement !== 'function') throw new TypeError('document is required');
     if (!mount || typeof mount.appendChild !== 'function') throw new TypeError('mount must provide appendChild()');
     this.document = document;
@@ -12,6 +12,7 @@ class PhysicsDiagnostics {
     this.disposed = false;
     this._humanYTooltips = [];
     this.mode = mode;
+    this.referencePanel = referencePanel;
     this._infoOpen = false;
 
     this.root = document.createElement('aside');
@@ -144,6 +145,20 @@ class PhysicsDiagnostics {
     this.infoToggle.textContent = this._infoOpen ? '−' : '+';
     this.infoToggle.setAttribute?.('aria-expanded', String(this._infoOpen));
     this.infoToggle.setAttribute?.('aria-label', this._infoOpen ? 'Volver a Parámetros' : 'Mostrar información de la inercia del humano');
+
+    // The expanded information is content inside the existing panel, not a
+    // larger panel. Lock its outer height to the Controls panel and let the
+    // information itself scroll when it exceeds that fixed area.
+    this.syncHeightWithReference();
+  }
+
+  syncHeightWithReference() {
+    if (!this._infoOpen || !this.referencePanel || typeof this.referencePanel.getBoundingClientRect !== 'function') return;
+    const height = this.referencePanel.getBoundingClientRect().height;
+    if (!Number.isFinite(height) || height <= 0) return;
+    this.root.style.height = `${height}px`;
+    this.root.style.maxHeight = `${height}px`;
+    this.root.style.overflowY = 'auto';
   }
 
   _richBlock({html, plain, className='ui-inertia-explanation', math=false}) {

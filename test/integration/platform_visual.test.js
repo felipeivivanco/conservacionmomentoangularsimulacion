@@ -39,10 +39,10 @@ test('D — platform provides a presentation-only support shadow', () => {
   assert.equal(platform.shadow.position.z, -0.08);
 });
 
-test('E — platform top keeps the original material while the vertical side gets a subtle darker material', () => {
+test('E — platform top is slightly lighter while the vertical side keeps its darker gray material', () => {
   const platform = new PlatformVisual({ three: THREE });
   assert.ok(Array.isArray(platform.mesh.material));
-  assert.equal(platform.mesh.material[1].options.color, 0x9a9a9a);
+  assert.equal(platform.mesh.material[1].options.color, 0xc2c2c2);
   assert.equal(platform.mesh.material[0].options.color, 0x858585);
   assert.equal(platform.topMaterial, platform.mesh.material[1]);
   assert.equal(platform.sideMaterial, platform.mesh.material[0]);
